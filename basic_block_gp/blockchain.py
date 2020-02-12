@@ -5,6 +5,8 @@ from uuid import uuid4
 
 from flask import Flask, jsonify, request
 
+import hashlib
+from collections import OrderedDict
 
 class Blockchain(object):
     def __init__(self):
@@ -31,13 +33,19 @@ class Blockchain(object):
         """
 
         block = {
-            # TODO
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'transactions': self.current_transactions,
+            'proof': proof,
+            'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
 
         # Reset the current list of transactions
+        self.current_transactions = []
         # Append the chain to the block
+        self.chain.append(block)
         # Return the new block
-        pass
+        return block
 
     def hash(self, block):
         """
@@ -56,6 +64,7 @@ class Blockchain(object):
         # or we'll have inconsistent hashes
 
         # TODO: Create the block_string
+        s = json.dumps(block).encode()
 
         # TODO: Hash this string using sha256
 
@@ -64,9 +73,12 @@ class Blockchain(object):
         # This can be hard to read, but .hexdigest() converts the
         # hash to a string of hexadecimal characters, which is
         # easier to work with and understand
+        hashed_s = hashlib.sha256()
+        hashed_s.update(s)
+        hashed_s = hashed_s.hexdigest()
 
         # TODO: Return the hashed block string in hexadecimal format
-        pass
+        return hashed_s
 
     @property
     def last_block(self):
@@ -119,6 +131,7 @@ def mine():
 
     response = {
         # TODO: Send a JSON response with the new block
+        "test": "hello"
     }
 
     return jsonify(response), 200
@@ -128,6 +141,8 @@ def mine():
 def full_chain():
     response = {
         # TODO: Return the chain and its current length
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
     }
     return jsonify(response), 200
 
