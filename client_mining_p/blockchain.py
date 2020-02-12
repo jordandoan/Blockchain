@@ -114,7 +114,7 @@ print(blockchain.hash(blockchain.last_block))
 def mine():
     data = request.get_json()
     if data['proof'] and data['id']:
-        proof = blockchain.valid_proof(data['proof'])
+        proof = blockchain.valid_proof(json.dumps(blockchain.last_block, sort_keys=True), data['proof'])
         if proof:
             blockchain.new_block(data['proof'])
             response = {
@@ -141,7 +141,7 @@ def full_chain():
     }
     return jsonify(response), 200
 
-@app.route('/lastblock', methods=['GET'])
+@app.route('/last_block', methods=['GET'])
 def last_block():
     last_block = blockchain.last_block
     response = {

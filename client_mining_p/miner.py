@@ -40,6 +40,7 @@ if __name__ == '__main__':
     # What is the server address? IE `python3 miner.py https://server.com/api/`
     if len(sys.argv) > 1:
         node = sys.argv[1]
+        node = sys.argv[1]
     else:
         node = "http://localhost:5000"
 
@@ -60,21 +61,20 @@ if __name__ == '__main__':
             print("Response returned:")
             print(r)
             break
-
         # TODO: Get the block from `data` and use it to look for a new proof
         # new_proof = ???
         new_proof = proof_of_work(data['last_block'])
 
+
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
 
+
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
-
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
-        if data['success']:
+        if data.get('success', None):
             coins += 1
-            print(coins)
-        pass
+            print(f"You have mined a coin! Current coins: {coins}")
