@@ -100,7 +100,7 @@ class Blockchain(object):
         return guess_hash[:6] == "000000"
 
     def new_transaction(self, sender, recipient, amount):
-        self.last_block['transactions'] =[{'sender': sender, 'recipient': recipient, 'amount': amount}]
+        self.current_transactions.append({'sender': sender, 'recipient': recipient, 'amount': amount})
         return len(self.chain)
 
 # Instantiate our Node
@@ -113,7 +113,7 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 print(blockchain.hash(blockchain.last_block))
 
-@app.route('transactions/new', methods=['POST'])
+@app.route('/transactions/new', methods=['POST'])
 def receive_new_transaction():
     data = request.get_json()
     required = ['sender', 'recipient', 'amount']
@@ -128,12 +128,12 @@ def mine():
     if data['proof'] and data['id']:
         proof = blockchain.valid_proof(json.dumps(blockchain.last_block, sort_keys=True), data['proof'])
         if proof:
+            blockchain.new_transaction(0, (data['id']), 1)
             blockchain.new_block(data['proof'])
             response = {
                 'success': True,
                 'message': "New Block Forged"
             }
-            blockchain.new_transaction(0, (data['id']), 1)
         else:
             response = {
                 'success': False,
